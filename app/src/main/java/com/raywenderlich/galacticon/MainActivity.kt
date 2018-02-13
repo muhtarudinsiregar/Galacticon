@@ -36,6 +36,8 @@ class MainActivity : AppCompatActivity(), ImageRequester.ImageRequesterResponse 
     private lateinit var imageRequester: ImageRequester
     private lateinit var linearLayoutManager: LinearLayoutManager
 
+    private lateinit var adapter: RecyclerAdapter
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
@@ -44,14 +46,21 @@ class MainActivity : AppCompatActivity(), ImageRequester.ImageRequesterResponse 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         linearLayoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = linearLayoutManager
+
+        adapter = RecyclerAdapter(photosList)
+        recyclerView.adapter = adapter
 
         imageRequester = ImageRequester(this)
     }
 
     override fun onStart() {
         super.onStart()
+        if (photosList.size == 0) {
+            requestPhoto()
+        }
     }
 
     private fun requestPhoto() {
@@ -66,6 +75,7 @@ class MainActivity : AppCompatActivity(), ImageRequester.ImageRequesterResponse 
     override fun receivedNewPhoto(newPhoto: Photo) {
         runOnUiThread {
             photosList.add(newPhoto)
+            adapter.notifyItemInserted(photosList.size)
         }
     }
 }
